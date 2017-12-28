@@ -10,36 +10,76 @@ import UIKit
 import MapKit
 import CoreData
 
-class PhotoAlbumViewController: UICollectionViewController {
+class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource {
 
     @IBOutlet weak var toolBarButton: UIBarButtonItem!
     @IBOutlet weak var toolBar: UIToolbar!
     @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
     @IBOutlet weak var mapView: MKMapView!
     var location: CLLocationCoordinate2D!
-    var fetchedResultsController : NSFetchedResultsController<NSFetchRequestResult>?
+    @IBOutlet weak var collectionView: UICollectionView!
+    
+    var fetchedResultsController : NSFetchedResultsController<NSFetchRequestResult>? {
+        didSet {
+            // Whenever the frc changes, we execute the search and
+            // reload the table
+            fetchedResultsController?.delegate = self
+            executeSearch()
+            collectionView?.reloadData()
+        }
+    }
+    
+    var pin: Pin!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Get the stack
-        let delegate = UIApplication.shared.delegate as! AppDelegate
-        let stack = delegate.stack
-        
-        // Create a fetchrequest
-        let fr = NSFetchRequest<NSFetchRequestResult>(entityName: "Photo")
-        
-        // Create the FetchedResultsController
-        fetchedResultsController = NSFetchedResultsController(fetchRequest: fr, managedObjectContext: stack.context, sectionNameKeyPath: nil, cacheName: nil)
         configureMapView()
         configureToolBar(photoSelected: false)
         configureCollectionView()
+        loadPhotos()
     }
     
-    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    func loadPhotos() {
+        let loadPhoto = FlickrPhotosDownloader()
+        loadPhoto.pin = pin
+        loadPhoto.fetchedResultsController = fetchedResultsController
+        loadPhoto.getImageFromFlickr()
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         //change toolbar to Remove selected items
         configureToolBar(photoSelected: true)
         //delete items from model and fetched again
     }
+
+        
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        if let fc = fetchedResultsController {
+            return (fc.sections?.count)!
+        } else {
+            return 0
+        }
+    }
+
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        if let fc = fetchedResultsController {
+            return fc.sections![section].numberOfObjects
+        } else {
+            return 0
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let photo = fetchedResultsController!.object(at: indexPath) as! Photo
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoCell", for: indexPath) as! photoViewCell
+        
+        // Configure the cell
+        cell.imageView.image = UIImage(data: photo.image! as Data)
+        
+        return cell
+    }
+
     
     @IBAction func toolBarButtonClicked(_ sender: Any) {
         if toolBarButton.title == "New Collection" {
@@ -49,28 +89,44 @@ class PhotoAlbumViewController: UICollectionViewController {
             //Delete photo
         }
     }
-    func configureMapView() {
-        let span: MKCoordinateSpan = MKCoordinateSpanMake(0.1, 0.1)
-        let region: MKCoordinateRegion = MKCoordinateRegionMake(location, span)
-        mapView.setRegion(region, animated: true)
-        
-        let annotation = MKPointAnnotation()
-        annotation.coordinate = location
-        mapView.addAnnotation(annotation)
-    }
     
-    func configureToolBar(photoSelected: Bool) {
-        toolBarButton.title = photoSelected ? "Remove Selected Pictures" : "New Collection"
-    }
-    func configureCollectionView() {
-        let space:CGFloat = 3.0
-        let dimension = (view.frame.size.width - (2 * space)) / 3.0
-        
-        flowLayout.minimumInteritemSpacing = space
-        flowLayout.minimumLineSpacing = space
-        flowLayout.itemSize = CGSize(width: dimension, height: dimension)
+    
+    func executeSearch() {
+        if let fc = fetchedResultsController {
+            do {
+                try fc.performFetch()
+            } catch let e as NSError {
+                print("Error while trying to perform a search: \n\(e)\n\(String(describing: fetchedResultsController))")
+            }
+        }
     }
 
+}
+extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
     
+    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        //tableView.beginUpdates()
+        //collectionView.reloadData()
+    }
+    
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
+        
+        switch(type) {
+        case .insert:
+            collectionView?.insertItems(at: [newIndexPath!])
+        case .delete:
+            collectionView?.deleteItems(at: [newIndexPath!])
+        case .update:
+            collectionView?.reloadItems(at: [newIndexPath!])
+        case .move:
+            collectionView?.deleteItems(at: [newIndexPath!])
+            collectionView?.insertItems(at: [newIndexPath!])
+        }
+    }
+    
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        //tableView.endUpdates()
+        _ = try? fetchedResultsController?.performFetch()
+    }
 
 }

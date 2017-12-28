@@ -2,7 +2,7 @@
 //  Pin+CoreDataProperties.swift
 //  Virtual Tourist
 //
-//  Created by Jamie Nguyen on 12/26/17.
+//  Created by Jamie Nguyen on 12/28/17.
 //  Copyright © 2017 Jamie Nguyen. All rights reserved.
 //
 //

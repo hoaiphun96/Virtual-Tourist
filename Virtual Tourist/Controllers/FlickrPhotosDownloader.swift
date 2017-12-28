@@ -1,17 +1,15 @@
 //
-//  CollectionCollectionViewController.swift
+//  FlickrPhotosDownloader.swift
 //  Virtual Tourist
 //
-//  Created by Jamie Nguyen on 12/26/17.
+//  Created by Jamie Nguyen on 12/28/17.
 //  Copyright © 2017 Jamie Nguyen. All rights reserved.
 //
 
-import UIKit
+import Foundation
 import CoreData
 
-
-class CollectionCollectionViewController {
-    
+public class FlickrPhotosDownloader  {
     var fetchedResultsController : NSFetchedResultsController<NSFetchRequestResult>?
     var pin : Pin?
     
@@ -21,12 +19,16 @@ class CollectionCollectionViewController {
     public func getImageFromFlickr() {
         // [creating the url and request]...
         let methodParameters = [
+            Constants.FlickrParameterKeys.Lat: pin!.coordinate.latitude,
+            Constants.FlickrParameterKeys.Long: pin!.coordinate.longitude,
             Constants.FlickrParameterKeys.Method: Constants.FlickrParameterValues.SearchPhotosMethod,
             Constants.FlickrParameterKeys.APIKey: Constants.FlickrParameterValues.APIKey,
             Constants.FlickrParameterKeys.Extras: Constants.FlickrParameterValues.MediumURL,
             Constants.FlickrParameterKeys.Format: Constants.FlickrParameterValues.ResponseFormat,
-            Constants.FlickrParameterKeys.NoJSONCallback: Constants.FlickrParameterValues.DisableJSONCallback
-        ]
+            Constants.FlickrParameterKeys.NoJSONCallback: Constants.FlickrParameterValues.DisableJSONCallback,
+            Constants.FlickrParameterKeys.page: "1",
+            Constants.FlickrParameterKeys.perpage: Constants.FlickrParameterValues.perpage
+            ] as [String : Any]
         
         let urlString = Constants.Flickr.APIBaseURL + escapedParameters(methodParameters as [String:AnyObject])
         let url = URL(string: urlString)!
@@ -96,6 +98,5 @@ class CollectionCollectionViewController {
             return "?\(keyValuePairs.joined(separator: "&"))"
         }
     }
-    
     
 }

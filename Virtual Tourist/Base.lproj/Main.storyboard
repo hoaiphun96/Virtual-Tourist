@@ -152,6 +152,10 @@
                                         </connections>
                                     </collectionViewCell>
                                 </cells>
+                                <connections>
+                                    <outlet property="dataSource" destination="Jn8-k5-Qwm" id="kb0-zB-KvZ"/>
+                                    <outlet property="delegate" destination="Jn8-k5-Qwm" id="fZ3-ab-om3"/>
+                                </connections>
                             </collectionView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -169,11 +173,9 @@
                             <constraint firstItem="Wxe-je-SBS" firstAttribute="leading" secondItem="S9D-fs-Vhv" secondAttribute="leading" id="rvj-ve-xPl"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="S9D-fs-Vhv"/>
-                        <connections>
-                            <outlet property="photosView" destination="Wxe-je-SBS" id="htJ-1T-bi6"/>
-                        </connections>
                     </view>
                     <connections>
+                        <outlet property="collectionView" destination="Wxe-je-SBS" id="GSu-UR-0yk"/>
                         <outlet property="flowLayout" destination="SXe-sb-lre" id="92Y-vD-1Ve"/>
                         <outlet property="mapView" destination="VTp-P0-Flw" id="aYB-AB-PTu"/>
                         <outlet property="toolBar" destination="048-fp-F7h" id="0KU-g0-fWu"/>

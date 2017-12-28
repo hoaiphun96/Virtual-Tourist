@@ -1,0 +1,35 @@
+//
+//  configurePhotoAlbumView.swift
+//  Virtual Tourist
+//
+//  Created by Jamie Nguyen on 12/28/17.
+//  Copyright © 2017 Jamie Nguyen. All rights reserved.
+//
+
+import Foundation
+import MapKit
+
+extension PhotoAlbumViewController {
+    
+    func configureMapView() {
+        let span: MKCoordinateSpan = MKCoordinateSpanMake(0.1, 0.1)
+        let region: MKCoordinateRegion = MKCoordinateRegionMake(location, span)
+        mapView.setRegion(region, animated: true)
+        
+        let annotation = MKPointAnnotation()
+        annotation.coordinate = location
+        mapView.addAnnotation(annotation)
+    }
+    
+    func configureToolBar(photoSelected: Bool) {
+        toolBarButton.title = photoSelected ? "Remove Selected Pictures" : "New Collection"
+    }
+    func configureCollectionView() {
+        let space:CGFloat = 3.0
+        let dimension = (view.frame.size.width - (2 * space)) / 3.0
+        
+        flowLayout.minimumInteritemSpacing = space
+        flowLayout.minimumLineSpacing = space
+        flowLayout.itemSize = CGSize(width: dimension, height: dimension)
+    }
+}

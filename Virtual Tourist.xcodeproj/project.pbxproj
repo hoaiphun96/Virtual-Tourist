@@ -8,12 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		EA2FE0991FF5A43E0076E063 /* FlickrPhotosDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2FE0981FF5A43E0076E063 /* FlickrPhotosDownloader.swift */; };
+		EA2FE09F1FF5E3430076E063 /* Photo+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2FE09B1FF5E3430076E063 /* Photo+CoreDataClass.swift */; };
+		EA2FE0A01FF5E3430076E063 /* Photo+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2FE09C1FF5E3430076E063 /* Photo+CoreDataProperties.swift */; };
+		EA2FE0A11FF5E3430076E063 /* Pin+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2FE09D1FF5E3430076E063 /* Pin+CoreDataClass.swift */; };
+		EA2FE0A21FF5E3430076E063 /* Pin+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2FE09E1FF5E3430076E063 /* Pin+CoreDataProperties.swift */; };
 		EA98B0951FF43B50002620DE /* photoViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA98B0941FF43B50002620DE /* photoViewCell.swift */; };
 		EA98B0971FF571E3002620DE /* configurePhotoAlbumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA98B0961FF571E3002620DE /* configurePhotoAlbumView.swift */; };
-		EA98B0A31FF59639002620DE /* Pin+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA98B09F1FF59639002620DE /* Pin+CoreDataClass.swift */; };
-		EA98B0A41FF59639002620DE /* Pin+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA98B0A01FF59639002620DE /* Pin+CoreDataProperties.swift */; };
-		EA98B0A51FF59639002620DE /* Photo+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA98B0A11FF59639002620DE /* Photo+CoreDataClass.swift */; };
-		EA98B0A61FF59639002620DE /* Photo+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA98B0A21FF59639002620DE /* Photo+CoreDataProperties.swift */; };
 		EAFE51661FF2E81500BB2A29 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAFE51651FF2E81500BB2A29 /* AppDelegate.swift */; };
 		EAFE516B1FF2E81500BB2A29 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EAFE51691FF2E81500BB2A29 /* Main.storyboard */; };
 		EAFE516E1FF2E81500BB2A29 /* Virtual_Tourist.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = EAFE516C1FF2E81500BB2A29 /* Virtual_Tourist.xcdatamodeld */; };
@@ -28,14 +28,15 @@
 
 /* Begin PBXFileReference section */
 		EA2FE0981FF5A43E0076E063 /* FlickrPhotosDownloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlickrPhotosDownloader.swift; sourceTree = "<group>"; };
+		EA2FE09A1FF5E31A0076E063 /* Virtual_Tourist4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Virtual_Tourist4.xcdatamodel; sourceTree = "<group>"; };
+		EA2FE09B1FF5E3430076E063 /* Photo+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Photo+CoreDataClass.swift"; sourceTree = "<group>"; };
+		EA2FE09C1FF5E3430076E063 /* Photo+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Photo+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		EA2FE09D1FF5E3430076E063 /* Pin+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Pin+CoreDataClass.swift"; sourceTree = "<group>"; };
+		EA2FE09E1FF5E3430076E063 /* Pin+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Pin+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		EA98B08E1FF42A9C002620DE /* Virtual_Tourist2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Virtual_Tourist2.xcdatamodel; sourceTree = "<group>"; };
 		EA98B0941FF43B50002620DE /* photoViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = photoViewCell.swift; sourceTree = "<group>"; };
 		EA98B0961FF571E3002620DE /* configurePhotoAlbumView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = configurePhotoAlbumView.swift; sourceTree = "<group>"; };
 		EA98B09A1FF57EAA002620DE /* Virtual_Tourist3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Virtual_Tourist3.xcdatamodel; sourceTree = "<group>"; };
-		EA98B09F1FF59639002620DE /* Pin+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Pin+CoreDataClass.swift"; sourceTree = "<group>"; };
-		EA98B0A01FF59639002620DE /* Pin+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Pin+CoreDataProperties.swift"; sourceTree = "<group>"; };
-		EA98B0A11FF59639002620DE /* Photo+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Photo+CoreDataClass.swift"; sourceTree = "<group>"; };
-		EA98B0A21FF59639002620DE /* Photo+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Photo+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		EAFE51621FF2E81500BB2A29 /* Virtual Tourist.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Virtual Tourist.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		EAFE51651FF2E81500BB2A29 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		EAFE516A1FF2E81500BB2A29 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -115,10 +116,10 @@
 		EAFE518D1FF3629D00BB2A29 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				EA98B09F1FF59639002620DE /* Pin+CoreDataClass.swift */,
-				EA98B0A01FF59639002620DE /* Pin+CoreDataProperties.swift */,
-				EA98B0A11FF59639002620DE /* Photo+CoreDataClass.swift */,
-				EA98B0A21FF59639002620DE /* Photo+CoreDataProperties.swift */,
+				EA2FE09B1FF5E3430076E063 /* Photo+CoreDataClass.swift */,
+				EA2FE09C1FF5E3430076E063 /* Photo+CoreDataProperties.swift */,
+				EA2FE09D1FF5E3430076E063 /* Pin+CoreDataClass.swift */,
+				EA2FE09E1FF5E3430076E063 /* Pin+CoreDataProperties.swift */,
 				EAFE517F1FF3553D00BB2A29 /* Constants.swift */,
 				EAFE51831FF3616800BB2A29 /* CoreDataStack.swift */,
 				EAFE516C1FF2E81500BB2A29 /* Virtual_Tourist.xcdatamodeld */,
@@ -198,19 +199,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EA98B0A61FF59639002620DE /* Photo+CoreDataProperties.swift in Sources */,
+				EA2FE09F1FF5E3430076E063 /* Photo+CoreDataClass.swift in Sources */,
+				EA2FE0A21FF5E3430076E063 /* Pin+CoreDataProperties.swift in Sources */,
 				EAFE51841FF3616800BB2A29 /* CoreDataStack.swift in Sources */,
 				EAFE51801FF3553D00BB2A29 /* Constants.swift in Sources */,
 				EAFE517E1FF2F19600BB2A29 /* TraveLocationsViewController.swift in Sources */,
-				EA98B0A51FF59639002620DE /* Photo+CoreDataClass.swift in Sources */,
-				EA98B0A41FF59639002620DE /* Pin+CoreDataProperties.swift in Sources */,
+				EA2FE0A11FF5E3430076E063 /* Pin+CoreDataClass.swift in Sources */,
 				EA2FE0991FF5A43E0076E063 /* FlickrPhotosDownloader.swift in Sources */,
 				EAFE516E1FF2E81500BB2A29 /* Virtual_Tourist.xcdatamodeld in Sources */,
 				EAFE51661FF2E81500BB2A29 /* AppDelegate.swift in Sources */,
 				EAFE51821FF35B2C00BB2A29 /* CollectionCollectionViewController.swift in Sources */,
 				EA98B0971FF571E3002620DE /* configurePhotoAlbumView.swift in Sources */,
-				EA98B0A31FF59639002620DE /* Pin+CoreDataClass.swift in Sources */,
 				EAFE517B1FF2EC5200BB2A29 /* PhotoAlbumViewController.swift in Sources */,
+				EA2FE0A01FF5E3430076E063 /* Photo+CoreDataProperties.swift in Sources */,
 				EA98B0951FF43B50002620DE /* photoViewCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -399,11 +400,12 @@
 		EAFE516C1FF2E81500BB2A29 /* Virtual_Tourist.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				EA2FE09A1FF5E31A0076E063 /* Virtual_Tourist4.xcdatamodel */,
 				EA98B09A1FF57EAA002620DE /* Virtual_Tourist3.xcdatamodel */,
 				EA98B08E1FF42A9C002620DE /* Virtual_Tourist2.xcdatamodel */,
 				EAFE516D1FF2E81500BB2A29 /* Virtual_Tourist.xcdatamodel */,
 			);
-			currentVersion = EA98B08E1FF42A9C002620DE /* Virtual_Tourist2.xcdatamodel */;
+			currentVersion = EA2FE09A1FF5E31A0076E063 /* Virtual_Tourist4.xcdatamodel */;
 			path = Virtual_Tourist.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

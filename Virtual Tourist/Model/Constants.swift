@@ -35,7 +35,7 @@ struct Constants {
         static let DisableJSONCallback = "1" /* 1 means "yes" */
         static let SearchPhotosMethod = "flickr.photos.search"
         static let MediumURL = "url_m"
-        static let perpage = "30"
+        static let perpage = "6"
     }
     
     // MARK: Flickr Response Keys

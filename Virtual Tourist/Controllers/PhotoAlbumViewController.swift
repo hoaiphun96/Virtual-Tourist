@@ -11,13 +11,17 @@ import MapKit
 import CoreData
 
 class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource {
-
+    
     @IBOutlet weak var toolBarButton: UIBarButtonItem!
     @IBOutlet weak var toolBar: UIToolbar!
     @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
     @IBOutlet weak var mapView: MKMapView!
     var location: CLLocationCoordinate2D!
     @IBOutlet weak var collectionView: UICollectionView!
+    var blockOperations = [BlockOperation]()
+    var currentPage: Int!
+    var selectedPhotos = Set<Photo>()
+    let noImageLabel = UILabel()
     
     var fetchedResultsController : NSFetchedResultsController<NSFetchRequestResult>? {
         didSet {
@@ -33,26 +37,82 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        // CHECK IF PHOTOS IN USERDEFAULT
         configureMapView()
         configureToolBar(photoSelected: false)
         configureCollectionView()
-        loadPhotos()
+        guard UserDefaults.standard.bool(forKey: "\(pin.objectID)") else {
+            // if never been loaded, set current page to 1, load new set of photos
+            currentPage = 1
+            loadPhotos(currentPage)
+            return
+        }
+        //else, use the persisted data and update the current page of this pin
+        currentPage = UserDefaults.standard.integer(forKey: "Page \(pin.objectID)")
+        print("ALREADY LOADED", currentPage)
     }
     
-    func loadPhotos() {
+    func loadPhotos(_ atPage: Int) {
         let loadPhoto = FlickrPhotosDownloader()
         loadPhoto.pin = pin
         loadPhoto.fetchedResultsController = fetchedResultsController
-        loadPhoto.getImageFromFlickr()
+        loadPhoto.getImageFromFlickr(pageNumber: atPage) { (foundImage, errorString) in
+            UserDefaults.standard.set(true, forKey: "\(self.pin.objectID)")
+            //If don't find any photo, display "No image found"
+            //if no image is found at all, then display "no image found",
+            guard foundImage else {
+                self.displayLabel()
+                return
+            }
+            //else
+            UserDefaults.standard.set(self.currentPage, forKey: "Page \(self.pin.objectID)")
+            UserDefaults.standard.synchronize()
+        }
+        do {
+            try fetchedResultsController?.managedObjectContext.save()
+        } catch {
+            print(error)
+        }
+
+    }
+    
+    func displayLabel() {
+        DispatchQueue.main.async {
+            self.toolBarButton.isEnabled = false
+            self.noImageLabel.frame = self.collectionView.bounds
+            self.noImageLabel.text = "This pin has no images"
+            self.noImageLabel.textAlignment = NSTextAlignment.center
+            self.collectionView.addSubview(self.noImageLabel)
+        }
+    }
+    
+    func deletePhotos() {
+        let fr = NSFetchRequest<NSFetchRequestResult>(entityName: "Photo")
+        fr.predicate = NSPredicate(format: "pin = %@", argumentArray: [pin!])
+        fr.includesPropertyValues = false
+        if let result = try? fetchedResultsController?.managedObjectContext.fetch(fr) {
+            for object in result! {
+                fetchedResultsController?.managedObjectContext.delete(object as! Photo)
+            }
+        }
+        try! fetchedResultsController?.managedObjectContext.save()
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         //change toolbar to Remove selected items
         configureToolBar(photoSelected: true)
-        //delete items from model and fetched again
-    }
-
         
+        let cell = collectionView.cellForItem(at: indexPath) as! photoViewCell
+        let photo = fetchedResultsController!.object(at: indexPath) as! Photo
+        if selectedPhotos.contains(photo) {
+            selectedPhotos.remove(photo)
+            cell.removeBlurView()
+        } else {
+            selectedPhotos.insert(photo)
+            cell.addBlurView()
+        }
+    }
+    
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         if let fc = fetchedResultsController {
             return (fc.sections?.count)!
@@ -60,7 +120,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
             return 0
         }
     }
-
+    
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if let fc = fetchedResultsController {
@@ -79,15 +139,24 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
         
         return cell
     }
-
+    
     
     @IBAction func toolBarButtonClicked(_ sender: Any) {
         if toolBarButton.title == "New Collection" {
-            //fetch new collection
+            currentPage = currentPage + 1
+            print("toolbar clicked",currentPage)
+            deletePhotos()
+            loadPhotos(currentPage)
         }
         else {
             //Delete photo
+            for photo in selectedPhotos {
+                fetchedResultsController?.managedObjectContext.delete(photo)
+            }
+            configureToolBar(photoSelected: false)
+            try! fetchedResultsController?.managedObjectContext.save()
         }
+        
     }
     
     
@@ -100,33 +169,64 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
             }
         }
     }
-
+    
+    
 }
 extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
     
     func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        //tableView.beginUpdates()
-        //collectionView.reloadData()
+        blockOperations.removeAll(keepingCapacity: false)
     }
     
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         
         switch(type) {
         case .insert:
-            collectionView?.insertItems(at: [newIndexPath!])
+            blockOperations.append(
+                BlockOperation(block: { [weak self] in
+                    if let this = self {
+                        this.collectionView?.insertItems(at: [newIndexPath!])
+                    }
+                })
+            )
+            
         case .delete:
-            collectionView?.deleteItems(at: [newIndexPath!])
+            blockOperations.append(
+                BlockOperation(block: { [weak self] in
+                    if let this = self {
+                        this.collectionView?.deleteItems(at: [indexPath!])
+                    }
+                })
+            )
+            
         case .update:
-            collectionView?.reloadItems(at: [newIndexPath!])
+            blockOperations.append(
+                BlockOperation(block: { [weak self] in
+                    if let this = self {
+                        this.collectionView?.reloadItems(at: [indexPath!])
+                    }
+                })
+            )
         case .move:
-            collectionView?.deleteItems(at: [newIndexPath!])
-            collectionView?.insertItems(at: [newIndexPath!])
+            blockOperations.append(
+                BlockOperation(block: { [weak self] in
+                    if let this = self {
+                        this.collectionView?.moveItem(at: indexPath!, to: newIndexPath!)
+                        
+                    }
+                })
+            )
         }
     }
     
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        //tableView.endUpdates()
-        _ = try? fetchedResultsController?.performFetch()
+        collectionView!.performBatchUpdates({ () -> Void in
+            for operation: BlockOperation in self.blockOperations {
+                operation.start()
+            }
+        }, completion: { (finished) -> Void in
+            self.blockOperations.removeAll(keepingCapacity: false)
+        })
     }
-
+    
 }

@@ -2,13 +2,14 @@
 //  Photo+CoreDataClass.swift
 //  Virtual Tourist
 //
-//  Created by Jamie Nguyen on 12/27/17.
+//  Created by Jamie Nguyen on 12/28/17.
 //  Copyright © 2017 Jamie Nguyen. All rights reserved.
 //
 //
-import UIKit
+
 import Foundation
 import CoreData
+import UIKit
 
 public class Photo: NSManagedObject {
     convenience init(url: String, context: NSManagedObjectContext) {
@@ -26,5 +27,4 @@ public class Photo: NSManagedObject {
         }
     }
 }
-
 

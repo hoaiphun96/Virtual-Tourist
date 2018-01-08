@@ -5,7 +5,7 @@
 //  Created by Jamie Nguyen on 12/26/17.
 //  Copyright © 2017 Jamie Nguyen. All rights reserved.
 //
-
+/*
 import UIKit
 import CoreData
 
@@ -52,6 +52,7 @@ class CollectionCollectionViewController {
                     //displayError("Could not parse the data as JSON: '\(data)'")
                     return
                 }
+                
                 if let photosDictionary = parsedResult[Constants.FlickrResponseKeys.Photos] as? [String:AnyObject], let photoArray = photosDictionary[Constants.FlickrResponseKeys.Photo] as? [[String:AnyObject]] {
                     // add photos to photos
                     if let p = self.pin, let context = self.fetchedResultsController?.managedObjectContext {
@@ -61,7 +62,9 @@ class CollectionCollectionViewController {
                             //add Photo to Core Data
                             let photo = Photo(url: photoURL, context: context)
                             photo.pin = p
+                            //CHANGE USER DEFAULT VALUE OF PIN TO PHOTOS
                         }
+                        UserDefaults.standard.set([self.pin!.photos], forKey: "\(self.pin!.objectID)")
                     }
                     
                 }
@@ -98,4 +101,4 @@ class CollectionCollectionViewController {
     }
     
     
-}
+} */

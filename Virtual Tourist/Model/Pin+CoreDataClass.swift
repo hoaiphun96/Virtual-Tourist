@@ -32,4 +32,3 @@ public class Pin: NSManagedObject, MKAnnotation {
         }
     }
 }
-

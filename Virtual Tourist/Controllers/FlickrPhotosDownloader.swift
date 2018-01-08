@@ -13,10 +13,9 @@ public class FlickrPhotosDownloader  {
     var fetchedResultsController : NSFetchedResultsController<NSFetchRequestResult>?
     var pin : Pin?
     
-    
     // MARK: Make Network Request
     
-    public func getImageFromFlickr() {
+    public func getImageFromFlickr(pageNumber: Int, completionHandlerForGetImage: @escaping (_ foundImage: Bool,_ errorString: String?) -> Void) {
         // [creating the url and request]...
         let methodParameters = [
             Constants.FlickrParameterKeys.Lat: pin!.coordinate.latitude,
@@ -26,7 +25,7 @@ public class FlickrPhotosDownloader  {
             Constants.FlickrParameterKeys.Extras: Constants.FlickrParameterValues.MediumURL,
             Constants.FlickrParameterKeys.Format: Constants.FlickrParameterValues.ResponseFormat,
             Constants.FlickrParameterKeys.NoJSONCallback: Constants.FlickrParameterValues.DisableJSONCallback,
-            Constants.FlickrParameterKeys.page: "1",
+            Constants.FlickrParameterKeys.page: "\(String(describing: pageNumber))",
             Constants.FlickrParameterKeys.perpage: Constants.FlickrParameterValues.perpage
             ] as [String : Any]
         
@@ -40,7 +39,7 @@ public class FlickrPhotosDownloader  {
             // if an error occurs, print it and re-enable the UI
             guard error == nil else {
                 print(error!)
-                print("URL at time of error: \(url)")
+                completionHandlerForGetImage(false, "URL at time of error: \(url)")
                 return
             }
             
@@ -51,21 +50,38 @@ public class FlickrPhotosDownloader  {
                     parsedResult = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as! [String:AnyObject]
                 } catch {
                     //TO DO: SHOW ALERT
-                    //displayError("Could not parse the data as JSON: '\(data)'")
+                    completionHandlerForGetImage(false, "Could not parse the data as JSON: '\(data)'")
                     return
                 }
-                if let photosDictionary = parsedResult[Constants.FlickrResponseKeys.Photos] as? [String:AnyObject], let photoArray = photosDictionary[Constants.FlickrResponseKeys.Photo] as? [[String:AnyObject]] {
+                if let photosDictionary = parsedResult[Constants.FlickrResponseKeys.Photos] as? [String:AnyObject], let pages = photosDictionary[Constants.FlickrResponseKeys.Pages] as? Int {
+                    
+                    
+                    guard let photoArray = photosDictionary[Constants.FlickrResponseKeys.Photo] as? [[String:AnyObject]] else {
+                        completionHandlerForGetImage(false, "No image")
+                        return
+                    }
                     // add photos to photos
+                    // CASE CURRENTPAGE = NUMPAGES, DISABLE NEW COLLECTION
                     if let p = self.pin, let context = self.fetchedResultsController?.managedObjectContext {
                         // Just create a new note and you're done!
+                        for photo in (self.pin?.photos)! {
+                            context.delete(photo as! NSManagedObject)
+                        }
+                        try! context.save()
+                        guard pageNumber <= pages else {
+                            completionHandlerForGetImage(false, "Out of bound")
+                            return
+                        }
+                        
                         for photo in photoArray {
                             let photoURL = photo[Constants.FlickrResponseKeys.MediumURL] as! String
                             //add Photo to Core Data
                             let photo = Photo(url: photoURL, context: context)
                             photo.pin = p
+                            completionHandlerForGetImage(true, nil)
                         }
                     }
-                    
+                   
                 }
             }
         }

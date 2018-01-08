@@ -30,18 +30,16 @@ class TraveLocationsViewController: UIViewController, MKMapViewDelegate, UIGestu
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         let delegate = UIApplication.shared.delegate as! AppDelegate
-        //let stack = delegate.stack
         let persistentContainer = delegate.persistentContainer
         
         // Create a fetchrequest
         let fr = NSFetchRequest<NSFetchRequestResult>(entityName: "Pin")
         fr.sortDescriptors = [NSSortDescriptor(key: "lat", ascending: true), NSSortDescriptor(key: "lon", ascending: true)]
         
-        // Create the FetchedResultsController
-        //fetchedResultsController = NSFetchedResultsController(fetchRequest: fr, managedObjectContext: stack.context, sectionNameKeyPath: nil, cacheName: nil)
         fetchedResultsController = NSFetchedResultsController(fetchRequest: fr, managedObjectContext: persistentContainer.viewContext, sectionNameKeyPath: nil, cacheName: nil)
-        
+     
     }
     
     func executeSearch() {
@@ -76,6 +74,12 @@ class TraveLocationsViewController: UIViewController, MKMapViewDelegate, UIGestu
         let gestureRecognizer = UILongPressGestureRecognizer(target: self, action:#selector(dropAPin(_:)))
         gestureRecognizer.delegate = self
         mapView.addGestureRecognizer(gestureRecognizer)
+        let fr = NSFetchRequest<NSFetchRequestResult>(entityName: "Pin")
+        if let result = try? fetchedResultsController?.managedObjectContext.fetch(fr) {
+            pins = result as! [Pin]
+            try! fetchedResultsController?.managedObjectContext.save()
+            reloadMap()
+        }
     }
     
     func configureUI(withToolbar: Bool) {
@@ -113,7 +117,8 @@ class TraveLocationsViewController: UIViewController, MKMapViewDelegate, UIGestu
             
             //add pin to core data and to mapView annotations
             let pin = Pin(lat: coordinate.latitude, lon: coordinate.longitude, context: fetchedResultsController!.managedObjectContext)
-            print("just created a new Pin \(pin)")
+            //add Pin to User Defaults
+            try! fetchedResultsController!.managedObjectContext.save()
             pin.coordinate = coordinate
             mapView.addAnnotation(pin)
             
@@ -153,8 +158,8 @@ class TraveLocationsViewController: UIViewController, MKMapViewDelegate, UIGestu
                 let pred = NSPredicate(format: "pin = %@", argumentArray: [selectedPin])
                 fr.predicate = pred
                 
-                let fc = NSFetchedResultsController(fetchRequest: fr, managedObjectContext:fetchedResultsController!.managedObjectContext, sectionNameKeyPath: nil, cacheName: nil)
-                
+                let fc = NSFetchedResultsController(fetchRequest: fr, managedObjectContext: fetchedResultsController!.managedObjectContext, sectionNameKeyPath: nil, cacheName: nil)
+               
                 // Inject it into the notesVC
                 photosVC.fetchedResultsController = fc
                 photosVC.location = selectedPin.coordinate

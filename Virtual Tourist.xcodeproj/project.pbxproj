@@ -22,7 +22,6 @@
 		EAFE517B1FF2EC5200BB2A29 /* PhotoAlbumViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAFE517A1FF2EC5200BB2A29 /* PhotoAlbumViewController.swift */; };
 		EAFE517E1FF2F19600BB2A29 /* TraveLocationsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAFE517D1FF2F19600BB2A29 /* TraveLocationsViewController.swift */; };
 		EAFE51801FF3553D00BB2A29 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAFE517F1FF3553D00BB2A29 /* Constants.swift */; };
-		EAFE51821FF35B2C00BB2A29 /* CollectionCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAFE51811FF35B2C00BB2A29 /* CollectionCollectionViewController.swift */; };
 		EAFE51841FF3616800BB2A29 /* CoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAFE51831FF3616800BB2A29 /* CoreDataStack.swift */; };
 /* End PBXBuildFile section */
 
@@ -47,7 +46,6 @@
 		EAFE517A1FF2EC5200BB2A29 /* PhotoAlbumViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoAlbumViewController.swift; sourceTree = "<group>"; };
 		EAFE517D1FF2F19600BB2A29 /* TraveLocationsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraveLocationsViewController.swift; sourceTree = "<group>"; };
 		EAFE517F1FF3553D00BB2A29 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
-		EAFE51811FF35B2C00BB2A29 /* CollectionCollectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionCollectionViewController.swift; sourceTree = "<group>"; };
 		EAFE51831FF3616800BB2A29 /* CoreDataStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataStack.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -107,7 +105,6 @@
 				EAFE517A1FF2EC5200BB2A29 /* PhotoAlbumViewController.swift */,
 				EA98B0961FF571E3002620DE /* configurePhotoAlbumView.swift */,
 				EAFE517D1FF2F19600BB2A29 /* TraveLocationsViewController.swift */,
-				EAFE51811FF35B2C00BB2A29 /* CollectionCollectionViewController.swift */,
 				EA2FE0981FF5A43E0076E063 /* FlickrPhotosDownloader.swift */,
 			);
 			path = Controllers;
@@ -208,7 +205,6 @@
 				EA2FE0991FF5A43E0076E063 /* FlickrPhotosDownloader.swift in Sources */,
 				EAFE516E1FF2E81500BB2A29 /* Virtual_Tourist.xcdatamodeld in Sources */,
 				EAFE51661FF2E81500BB2A29 /* AppDelegate.swift in Sources */,
-				EAFE51821FF35B2C00BB2A29 /* CollectionCollectionViewController.swift in Sources */,
 				EA98B0971FF571E3002620DE /* configurePhotoAlbumView.swift in Sources */,
 				EAFE517B1FF2EC5200BB2A29 /* PhotoAlbumViewController.swift in Sources */,
 				EA2FE0A01FF5E3430076E063 /* Photo+CoreDataProperties.swift in Sources */,

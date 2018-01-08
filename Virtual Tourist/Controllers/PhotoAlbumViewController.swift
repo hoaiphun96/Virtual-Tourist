@@ -49,7 +49,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
         }
         //else, use the persisted data and update the current page of this pin
         currentPage = UserDefaults.standard.integer(forKey: "Page \(pin.objectID)")
-        print("ALREADY LOADED", currentPage)
+        print("number of blur view photos", self.selectedPhotos.count)
     }
     
     func loadPhotos(_ atPage: Int) {
@@ -136,7 +136,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
         
         // Configure the cell
         cell.imageView.image = UIImage(data: photo.image! as Data)
-        
+        cell.removeBlurView()
         return cell
     }
     
@@ -146,7 +146,10 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
             currentPage = currentPage + 1
             print("toolbar clicked",currentPage)
             deletePhotos()
+            selectedPhotos.removeAll()
             loadPhotos(currentPage)
+            print(selectedPhotos.count)
+            
         }
         else {
             //Delete photo

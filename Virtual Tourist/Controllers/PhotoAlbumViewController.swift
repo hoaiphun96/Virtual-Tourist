@@ -37,21 +37,32 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // CHECK IF PHOTOS IN USERDEFAULT
+        //Configure UI
         configureMapView()
         configureToolBar(photoSelected: false)
         configureCollectionView()
+        //Check if photos for this pin have been loaded before
         guard UserDefaults.standard.bool(forKey: "\(pin.objectID)") else {
-            // if never been loaded, set current page to 1, load new set of photos
+            //if never been loaded, set current page to 1, load new set of photos
             currentPage = 1
             loadPhotos(currentPage)
             return
         }
         //else, use the persisted data and update the current page of this pin
         currentPage = UserDefaults.standard.integer(forKey: "Page \(pin.objectID)")
-        print("number of blur view photos", self.selectedPhotos.count)
     }
     
+    func executeSearch() {
+        if let fc = fetchedResultsController {
+            do {
+                try fc.performFetch()
+            } catch let e as NSError {
+                print("Error while trying to perform a search: \n\(e)\n\(String(describing: fetchedResultsController))")
+            }
+        }
+    }
+    
+    //MARK: HELPER METHODS TO LOAD and DELETE PHOTOS
     func loadPhotos(_ atPage: Int) {
         let loadPhoto = FlickrPhotosDownloader()
         loadPhoto.pin = pin
@@ -73,17 +84,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
         } catch {
             print(error)
         }
-
-    }
-    
-    func displayLabel() {
-        DispatchQueue.main.async {
-            self.toolBarButton.isEnabled = false
-            self.noImageLabel.frame = self.collectionView.bounds
-            self.noImageLabel.text = "This pin has no images"
-            self.noImageLabel.textAlignment = NSTextAlignment.center
-            self.collectionView.addSubview(self.noImageLabel)
-        }
+        
     }
     
     func deletePhotos() {
@@ -98,6 +99,26 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
         try! fetchedResultsController?.managedObjectContext.save()
     }
     
+    //MARK: TOOLBAR CLICKED METHOD TO LOAD NEW COLLECTION OR DELETE PHOTOS FROM COLLECTION
+    @IBAction func toolBarButtonClicked(_ sender: Any) {
+        if toolBarButton.title == "New Collection" {
+            currentPage = currentPage + 1
+            deletePhotos()
+            selectedPhotos.removeAll()
+            loadPhotos(currentPage)
+            
+        }
+        else {
+            //Delete photo
+            for photo in selectedPhotos {
+                fetchedResultsController?.managedObjectContext.delete(photo)
+            }
+            configureToolBar(photoSelected: false)
+            try! fetchedResultsController?.managedObjectContext.save()
+        }
+    }
+    
+    //MARK: COLLECTION VIEW DELEGATE METHODS
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         //change toolbar to Remove selected items
         configureToolBar(photoSelected: true)
@@ -135,46 +156,18 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoCell", for: indexPath) as! photoViewCell
         
         // Configure the cell
-        cell.imageView.image = UIImage(data: photo.image! as Data)
-        cell.removeBlurView()
+        if let image = UIImage(data: photo.image! as Data) {
+            DispatchQueue.main.async {
+                cell.imageView.image = image
+                cell.removeBlurView()
+            }
+        }
         return cell
     }
     
-    
-    @IBAction func toolBarButtonClicked(_ sender: Any) {
-        if toolBarButton.title == "New Collection" {
-            currentPage = currentPage + 1
-            print("toolbar clicked",currentPage)
-            deletePhotos()
-            selectedPhotos.removeAll()
-            loadPhotos(currentPage)
-            print(selectedPhotos.count)
-            
-        }
-        else {
-            //Delete photo
-            for photo in selectedPhotos {
-                fetchedResultsController?.managedObjectContext.delete(photo)
-            }
-            configureToolBar(photoSelected: false)
-            try! fetchedResultsController?.managedObjectContext.save()
-        }
-        
-    }
-    
-    
-    func executeSearch() {
-        if let fc = fetchedResultsController {
-            do {
-                try fc.performFetch()
-            } catch let e as NSError {
-                print("Error while trying to perform a search: \n\(e)\n\(String(describing: fetchedResultsController))")
-            }
-        }
-    }
-    
-    
 }
+
+// MARK: FETCH RESULT CONTROLLER DELEGATE
 extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
     
     func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {

@@ -22,9 +22,10 @@ public class Pin: NSManagedObject, MKAnnotation {
             fatalError("Unable to find Entity name")
         }
     }
+    
     public var coordinate: CLLocationCoordinate2D {
         get {
-            return CLLocationCoordinate2DMake(lat, lon)
+            return CLLocationCoordinate2DMake(self.lat, self.lon)
         }
         set {
             self.lat = newValue.latitude

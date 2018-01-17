@@ -17,10 +17,9 @@ public class Photo: NSManagedObject {
             self.init(entity: ent, insertInto: context)
             self.url = url
             let realURL = URL(string: url)
-            
-            let data = try! Data(contentsOf: realURL!)
-            self.image = data as NSData
-            
+            if let data = try? Data(contentsOf: realURL!) {
+                self.image = data as NSData
+            }
         }
         else {
             fatalError("Unable to find Entity name")

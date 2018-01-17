@@ -55,7 +55,6 @@ public class FlickrPhotosDownloader  {
                 }
                 if let photosDictionary = parsedResult[Constants.FlickrResponseKeys.Photos] as? [String:AnyObject], let pages = photosDictionary[Constants.FlickrResponseKeys.Pages] as? Int {
                     
-                    
                     guard let photoArray = photosDictionary[Constants.FlickrResponseKeys.Photo] as? [[String:AnyObject]] else {
                         completionHandlerForGetImage(false, "No image")
                         return
@@ -78,10 +77,11 @@ public class FlickrPhotosDownloader  {
                             //add Photo to Core Data
                             let photo = Photo(url: photoURL, context: context)
                             photo.pin = p
-                            completionHandlerForGetImage(true, nil)
                         }
+                        completionHandlerForGetImage(true, nil)
+        
                     }
-                   
+                    
                 }
             }
         }

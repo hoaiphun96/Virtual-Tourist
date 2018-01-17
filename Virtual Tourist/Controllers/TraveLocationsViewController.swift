@@ -17,6 +17,7 @@ class TraveLocationsViewController: UIViewController, MKMapViewDelegate, UIGestu
     @IBOutlet weak var toolBar: UIToolbar!
     var selectedAnnotation: Pin?
     var pins = [Pin]()
+    var deletePinMode: Bool?
     
     var fetchedResultsController : NSFetchedResultsController<NSFetchRequestResult>? {
         didSet {
@@ -30,15 +31,14 @@ class TraveLocationsViewController: UIViewController, MKMapViewDelegate, UIGestu
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         let delegate = UIApplication.shared.delegate as! AppDelegate
-        let persistentContainer = delegate.persistentContainer
-        
+        //let persistentContainer = delegate.persistentContainer
+        let stack = delegate.stack
         // Create a fetchrequest
         let fr = NSFetchRequest<NSFetchRequestResult>(entityName: "Pin")
         fr.sortDescriptors = [NSSortDescriptor(key: "lat", ascending: true), NSSortDescriptor(key: "lon", ascending: true)]
         
-        fetchedResultsController = NSFetchedResultsController(fetchRequest: fr, managedObjectContext: persistentContainer.viewContext, sectionNameKeyPath: nil, cacheName: nil)
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fr, managedObjectContext: stack.context , sectionNameKeyPath: nil, cacheName: nil)
      
     }
     
@@ -51,20 +51,11 @@ class TraveLocationsViewController: UIViewController, MKMapViewDelegate, UIGestu
             }
         }
     }
-    
+  
     func reloadMap() {
-        var annotations = [MKAnnotation]()
-        for p in pins {
-            let lat = CLLocationDegrees(p.lat)
-            let lon = CLLocationDegrees(p.lon)
-            let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: lon)
-            let annotation = MKPointAnnotation()
-            annotation.coordinate = coordinate
-            annotations.append(annotation)
-            DispatchQueue.main.async {
-                self.mapView.addAnnotations(annotations)
-                self.mapView.showAnnotations(self.mapView.annotations, animated: true)
-            }
+        DispatchQueue.main.async {
+            self.mapView.addAnnotations(self.pins)
+            self.mapView.showAnnotations(self.mapView.annotations, animated: true)
         }
     }
     
@@ -75,11 +66,13 @@ class TraveLocationsViewController: UIViewController, MKMapViewDelegate, UIGestu
         gestureRecognizer.delegate = self
         mapView.addGestureRecognizer(gestureRecognizer)
         let fr = NSFetchRequest<NSFetchRequestResult>(entityName: "Pin")
-        if let result = try? fetchedResultsController?.managedObjectContext.fetch(fr) {
-            pins = result as! [Pin]
-            try! fetchedResultsController?.managedObjectContext.save()
-            reloadMap()
+        guard let result = try? fetchedResultsController?.managedObjectContext.fetch(fr) else {
+            print("No pin found")
+            return
         }
+        pins = result as! [Pin]
+        try! fetchedResultsController?.managedObjectContext.save()
+        reloadMap()
     }
     
     func configureUI(withToolbar: Bool) {
@@ -88,16 +81,16 @@ class TraveLocationsViewController: UIViewController, MKMapViewDelegate, UIGestu
                 self.mapView.frame = CGRect(x: self.mapView.frame.origin.x, y: self.mapView.frame.origin.y, width: self.mapView.frame.width, height: self.mapView.frame.height - 60)
             }
             rightButton.title = "Done"
-            toolBar.isHidden = false
         }
         else {
             DispatchQueue.main.async {
                 self.mapView.frame = CGRect(x: self.mapView.frame.origin.x, y: self.mapView.frame.origin.y, width: self.mapView.frame.width, height: self.mapView.frame.height + 60)
                 
             }
-            toolBar.isHidden = true
             rightButton.title = "Edit"
         }
+        deletePinMode = !withToolbar
+        toolBar.isHidden = !withToolbar
     }
     
     @IBAction func rightButtonClicked(_ sender: Any) {
@@ -118,11 +111,12 @@ class TraveLocationsViewController: UIViewController, MKMapViewDelegate, UIGestu
             //add pin to core data and to mapView annotations
             let pin = Pin(lat: coordinate.latitude, lon: coordinate.longitude, context: fetchedResultsController!.managedObjectContext)
             //add Pin to User Defaults
-            try! fetchedResultsController!.managedObjectContext.save()
-            pin.coordinate = coordinate
-            mapView.addAnnotation(pin)
-            
-            
+            do {
+                try fetchedResultsController!.managedObjectContext.save()
+                mapView.addAnnotation(pin)
+            } catch {
+                print("Error while saving")
+            }
         }
     }
     
@@ -133,7 +127,16 @@ class TraveLocationsViewController: UIViewController, MKMapViewDelegate, UIGestu
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         selectedAnnotation = view.annotation as? Pin
-        
+        guard deletePinMode! else {
+            //add selected pin to selectedPin array
+            fetchedResultsController?.managedObjectContext.delete(selectedAnnotation!)
+            mapView.removeAnnotation(selectedAnnotation!)
+            try! fetchedResultsController?.managedObjectContext.save()
+            return
+        }
+        mapView.deselectAnnotation(selectedAnnotation, animated: false)
+        selectedAnnotation?.lat = (view.annotation?.coordinate.latitude)!
+        selectedAnnotation?.lon = (view.annotation?.coordinate.longitude)!
         performSegue(withIdentifier: "presentPhotos", sender: self)
     }
   
@@ -146,26 +149,21 @@ class TraveLocationsViewController: UIViewController, MKMapViewDelegate, UIGestu
         if segue.identifier! == "presentPhotos" {
             
             if let photosVC = segue.destination as? PhotoAlbumViewController {
-                
-                // Create Fetch Request
+                 // Create Fetch Request
                 let fr = NSFetchRequest<NSFetchRequestResult>(entityName: "Photo")
                 fr.sortDescriptors = [NSSortDescriptor(key: "url", ascending: true)]
                 
-                //fetchedResultsController?.
-                
-                let selectedPin = fetchedResultsController?.managedObjectContext.object(with: (selectedAnnotation?.objectID)!) as! Pin
-                // Create FetchedResultsController
-                let pred = NSPredicate(format: "pin = %@", argumentArray: [selectedPin])
+                let pred = NSPredicate(format: "pin = %@", argumentArray: [selectedAnnotation!])
                 fr.predicate = pred
-                
                 let fc = NSFetchedResultsController(fetchRequest: fr, managedObjectContext: fetchedResultsController!.managedObjectContext, sectionNameKeyPath: nil, cacheName: nil)
-               
-                // Inject it into the notesVC
+                
+                // Inject it into the PhotoAlbumVC
                 photosVC.fetchedResultsController = fc
-                photosVC.location = selectedPin.coordinate
-                // Inject the notebook too!
-                photosVC.pin = selectedPin
-              
+                let coordinate = selectedAnnotation?.coordinate
+                photosVC.location = coordinate
+                // Inject the pin too!
+                photosVC.pin = selectedAnnotation
+            
             }
         }
     }

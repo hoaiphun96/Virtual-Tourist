@@ -18,7 +18,7 @@ class TraveLocationsViewController: UIViewController, MKMapViewDelegate, UIGestu
     var selectedAnnotation: Pin?
     var pins = [Pin]()
     var deletePinMode: Bool?
-    
+    let delegate = UIApplication.shared.delegate as! AppDelegate
     var fetchedResultsController : NSFetchedResultsController<NSFetchRequestResult>? {
         didSet {
             // Whenever the frc changes, we execute the search and
@@ -39,8 +39,8 @@ class TraveLocationsViewController: UIViewController, MKMapViewDelegate, UIGestu
         fr.sortDescriptors = [NSSortDescriptor(key: "lat", ascending: true), NSSortDescriptor(key: "lon", ascending: true)]
         
         fetchedResultsController = NSFetchedResultsController(fetchRequest: fr, managedObjectContext: stack.context , sectionNameKeyPath: nil, cacheName: nil)
-     
     }
+
     
     func executeSearch() {
         if let fc = fetchedResultsController {
@@ -55,7 +55,6 @@ class TraveLocationsViewController: UIViewController, MKMapViewDelegate, UIGestu
     func reloadMap() {
         DispatchQueue.main.async {
             self.mapView.addAnnotations(self.pins)
-            self.mapView.showAnnotations(self.mapView.annotations, animated: true)
         }
     }
     
@@ -72,6 +71,7 @@ class TraveLocationsViewController: UIViewController, MKMapViewDelegate, UIGestu
         }
         pins = result as! [Pin]
         try! fetchedResultsController?.managedObjectContext.save()
+        print(pins.count)
         reloadMap()
     }
     
@@ -110,13 +110,8 @@ class TraveLocationsViewController: UIViewController, MKMapViewDelegate, UIGestu
             
             //add pin to core data and to mapView annotations
             let pin = Pin(lat: coordinate.latitude, lon: coordinate.longitude, context: fetchedResultsController!.managedObjectContext)
-            //add Pin to User Defaults
-            do {
-                try fetchedResultsController!.managedObjectContext.save()
-                mapView.addAnnotation(pin)
-            } catch {
-                print("Error while saving")
-            }
+            delegate.stack.save()
+            mapView.addAnnotation(pin)
         }
     }
     

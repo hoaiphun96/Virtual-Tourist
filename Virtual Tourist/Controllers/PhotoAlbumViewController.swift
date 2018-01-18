@@ -123,7 +123,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
         //change toolbar to Remove selected items
         configureToolBar(photoSelected: true)
         
-        let cell = collectionView.cellForItem(at: indexPath) as! photoViewCell
+        let cell = collectionView.cellForItem(at: indexPath) as! PhotoViewCell
         let photo = fetchedResultsController!.object(at: indexPath) as! Photo
         if selectedPhotos.contains(photo) {
             selectedPhotos.remove(photo)
@@ -153,15 +153,16 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let photo = fetchedResultsController!.object(at: indexPath) as! Photo
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoCell", for: indexPath) as! photoViewCell
-        
-        // Configure the cell
-        if let image = UIImage(data: photo.image! as Data) {
-            DispatchQueue.main.async {
-                cell.imageView.image = image
-                cell.removeBlurView()
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoCell", for: indexPath) as! PhotoViewCell
+        let _ = photo.downloadImage(imagePath: photo.url!, completionHandler: { (data, errorString) in
+            if data != nil {
+                //photo.image = data! as NSData
+                DispatchQueue.main.async {
+                    cell.imageView.image = UIImage(data: data!)
+                    cell.removeBlurView()
             }
-        }
+            }
+        })
         return cell
     }
     

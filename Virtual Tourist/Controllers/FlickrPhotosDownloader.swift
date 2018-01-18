@@ -62,7 +62,7 @@ public class FlickrPhotosDownloader  {
                     // add photos to photos
                     // CASE CURRENTPAGE = NUMPAGES, DISABLE NEW COLLECTION
                     if let p = self.pin, let context = self.fetchedResultsController?.managedObjectContext {
-                        // Just create a new note and you're done!
+                        // Delete old photos in collection view
                         for photo in (self.pin?.photos)! {
                             context.delete(photo as! NSManagedObject)
                         }
@@ -71,7 +71,7 @@ public class FlickrPhotosDownloader  {
                             completionHandlerForGetImage(false, "Out of bound")
                             return
                         }
-                        
+                        //save new photos downloaded to CoreData
                         for photo in photoArray {
                             let photoURL = photo[Constants.FlickrResponseKeys.MediumURL] as! String
                             //add Photo to Core Data

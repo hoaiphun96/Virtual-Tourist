@@ -31,14 +31,11 @@ class TraveLocationsViewController: UIViewController, MKMapViewDelegate, UIGestu
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        let delegate = UIApplication.shared.delegate as! AppDelegate
-        //let persistentContainer = delegate.persistentContainer
-        let stack = delegate.stack
         // Create a fetchrequest
         let fr = NSFetchRequest<NSFetchRequestResult>(entityName: "Pin")
         fr.sortDescriptors = [NSSortDescriptor(key: "lat", ascending: true), NSSortDescriptor(key: "lon", ascending: true)]
         
-        fetchedResultsController = NSFetchedResultsController(fetchRequest: fr, managedObjectContext: stack.context , sectionNameKeyPath: nil, cacheName: nil)
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fr, managedObjectContext: delegate.stack.context , sectionNameKeyPath: nil, cacheName: nil)
     }
 
     
@@ -70,8 +67,7 @@ class TraveLocationsViewController: UIViewController, MKMapViewDelegate, UIGestu
             return
         }
         pins = result as! [Pin]
-        try! fetchedResultsController?.managedObjectContext.save()
-        print(pins.count)
+        delegate.stack.save()
         reloadMap()
     }
     
@@ -126,7 +122,7 @@ class TraveLocationsViewController: UIViewController, MKMapViewDelegate, UIGestu
             //add selected pin to selectedPin array
             fetchedResultsController?.managedObjectContext.delete(selectedAnnotation!)
             mapView.removeAnnotation(selectedAnnotation!)
-            try! fetchedResultsController?.managedObjectContext.save()
+            delegate.stack.save()
             return
         }
         mapView.deselectAnnotation(selectedAnnotation, animated: false)
@@ -138,9 +134,6 @@ class TraveLocationsViewController: UIViewController, MKMapViewDelegate, UIGestu
     
     // MARK: - Navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-        
         if segue.identifier! == "presentPhotos" {
             
             if let photosVC = segue.destination as? PhotoAlbumViewController {

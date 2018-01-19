@@ -13,16 +13,13 @@ extension PhotoAlbumViewController {
     
     func configureMapView() {
         
-            let span: MKCoordinateSpan = MKCoordinateSpanMake(0.1, 0.1)
-            let region: MKCoordinateRegion = MKCoordinateRegionMake(location, span)
-            DispatchQueue.main.async {
-                self.mapView.setRegion(region, animated: true)
-            }
-            
-            let annotation = MKPointAnnotation()
-            annotation.coordinate = self.location
-            DispatchQueue.main.async {
-                self.mapView.addAnnotation(annotation)
+        let span: MKCoordinateSpan = MKCoordinateSpanMake(0.1, 0.1)
+        let region: MKCoordinateRegion = MKCoordinateRegionMake(location, span)
+        self.mapView.setRegion(region, animated: true)
+        let annotation = MKPointAnnotation()
+        annotation.coordinate = self.location
+        DispatchQueue.main.async {
+            self.mapView.addAnnotation(annotation)
         }
     }
     
@@ -31,7 +28,7 @@ extension PhotoAlbumViewController {
     }
     
     func configureCollectionView() {
-        let space:CGFloat = 3.0
+        let space:CGFloat = 5.0
         let dimension = (view.frame.size.width - (2 * space)) / 3.0
         
         flowLayout.minimumInteritemSpacing = space

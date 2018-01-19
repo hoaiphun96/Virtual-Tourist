@@ -22,6 +22,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
     var currentPage: Int!
     var selectedPhotos = Set<Photo>()
     let noImageLabel = UILabel()
+    let delegate = UIApplication.shared.delegate as! AppDelegate
     
     var fetchedResultsController : NSFetchedResultsController<NSFetchRequestResult>? {
         didSet {
@@ -79,11 +80,8 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
             UserDefaults.standard.set(self.currentPage, forKey: "Page \(self.pin.objectID)")
             UserDefaults.standard.synchronize()
         }
-        do {
-            try fetchedResultsController?.managedObjectContext.save()
-        } catch {
-            print(error)
-        }
+            delegate.stack.save()
+       
         
     }
     
@@ -96,7 +94,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
                 fetchedResultsController?.managedObjectContext.delete(object as! Photo)
             }
         }
-        try! fetchedResultsController?.managedObjectContext.save()
+        delegate.stack.save()
     }
     
     //MARK: TOOLBAR CLICKED METHOD TO LOAD NEW COLLECTION OR DELETE PHOTOS FROM COLLECTION
@@ -114,7 +112,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
                 fetchedResultsController?.managedObjectContext.delete(photo)
             }
             configureToolBar(photoSelected: false)
-            try! fetchedResultsController?.managedObjectContext.save()
+            delegate.stack.save()
         }
     }
     
@@ -152,12 +150,15 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let ai = ActivityIndicator()
         let photo = fetchedResultsController!.object(at: indexPath) as! Photo
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoCell", for: indexPath) as! PhotoViewCell
+        ai.showLoader(cell.imageView)
         let _ = photo.downloadImage(imagePath: photo.url!, completionHandler: { (data, errorString) in
             if data != nil {
                 //photo.image = data! as NSData
                 DispatchQueue.main.async {
+                    ai.removeLoader()
                     cell.imageView.image = UIImage(data: data!)
                     cell.removeBlurView()
             }

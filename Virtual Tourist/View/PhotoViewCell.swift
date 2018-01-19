@@ -8,7 +8,7 @@
 
 import UIKit
 
-class photoViewCell: UICollectionViewCell {
+class PhotoViewCell: UICollectionViewCell {
     
     @IBOutlet weak var imageView: UIImageView!
     var blurView: UIVisualEffectView?

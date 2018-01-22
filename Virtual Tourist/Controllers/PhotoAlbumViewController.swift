@@ -81,7 +81,6 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
             UserDefaults.standard.synchronize()
         }
             delegate.stack.save()
-       
         
     }
     

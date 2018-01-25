@@ -8,6 +8,7 @@
 
 import Foundation
 import CoreData
+import UIKit
 
 public class FlickrPhotosDownloader  {
     var fetchedResultsController : NSFetchedResultsController<NSFetchRequestResult>?
@@ -32,13 +33,11 @@ public class FlickrPhotosDownloader  {
         let urlString = Constants.Flickr.APIBaseURL + escapedParameters(methodParameters as [String:AnyObject])
         let url = URL(string: urlString)!
         let request = URLRequest(url: url)
-        
         // create network request
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
             
             // if an error occurs, print it and re-enable the UI
             guard error == nil else {
-                print(error!)
                 completionHandlerForGetImage(false, "URL at time of error: \(url)")
                 return
             }
@@ -49,7 +48,6 @@ public class FlickrPhotosDownloader  {
                 do {
                     parsedResult = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as! [String:AnyObject]
                 } catch {
-                    //TO DO: SHOW ALERT
                     completionHandlerForGetImage(false, "Could not parse the data as JSON: '\(data)'")
                     return
                 }
@@ -65,9 +63,14 @@ public class FlickrPhotosDownloader  {
                         // Delete old photos in collection view
                         for photo in (self.pin?.photos)! {
                             context.delete(photo as! NSManagedObject)
+                            
                         }
-                        try! context.save()
-                        guard pageNumber <= pages else {
+                        DispatchQueue.main.async {
+                            (UIApplication.shared.delegate as! AppDelegate).stack.save()
+                        }
+                        UserDefaults.standard.set(pages, forKey: "Number of pages for \(String(describing: self.pin?.objectID))")
+                        UserDefaults.standard.synchronize()
+                         guard pages != 0 else {
                             completionHandlerForGetImage(false, "Out of bound")
                             return
                         }
@@ -79,9 +82,7 @@ public class FlickrPhotosDownloader  {
                             photo.pin = p
                         }
                         completionHandlerForGetImage(true, nil)
-        
                     }
-                    
                 }
             }
         }

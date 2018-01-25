@@ -44,13 +44,11 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
         configureCollectionView()
         //Check if photos for this pin have been loaded before
         guard UserDefaults.standard.bool(forKey: "\(pin.objectID)") else {
-            //if never been loaded, set current page to 1, load new set of photos
-            currentPage = 1
-            loadPhotos(currentPage)
+            //if never been loaded, load page 1, load new set of photos
+            loadPhotos(1)
             return
         }
-        //else, use the persisted data and update the current page of this pin
-        currentPage = UserDefaults.standard.integer(forKey: "Page \(pin.objectID)")
+        
     }
     
     func executeSearch() {
@@ -76,11 +74,8 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
                 self.displayLabel()
                 return
             }
-            //else
-            UserDefaults.standard.set(self.currentPage, forKey: "Page \(self.pin.objectID)")
-            UserDefaults.standard.synchronize()
         }
-            delegate.stack.save()
+        delegate.stack.save()
         
     }
     
@@ -99,11 +94,12 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
     //MARK: TOOLBAR CLICKED METHOD TO LOAD NEW COLLECTION OR DELETE PHOTOS FROM COLLECTION
     @IBAction func toolBarButtonClicked(_ sender: Any) {
         if toolBarButton.title == "New Collection" {
-            currentPage = currentPage + 1
+            //next page = randome within the range of number of pages at that location
+            let randomInt = arc4random_uniform(UInt32(UserDefaults.standard.integer(forKey: "Number of pages for \(String(describing: self.pin?.objectID))")))
+            let randomPageNumber = Int(1 + randomInt)
             deletePhotos()
             selectedPhotos.removeAll()
-            loadPhotos(currentPage)
-            
+            loadPhotos(randomPageNumber)
         }
         else {
             //Delete photo
@@ -149,20 +145,28 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let ai = ActivityIndicator()
+        
         let photo = fetchedResultsController!.object(at: indexPath) as! Photo
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoCell", for: indexPath) as! PhotoViewCell
-        ai.showLoader(cell.imageView)
-        let _ = photo.downloadImage(imagePath: photo.url!, completionHandler: { (data, errorString) in
-            if data != nil {
-                //photo.image = data! as NSData
-                DispatchQueue.main.async {
-                    ai.removeLoader()
-                    cell.imageView.image = UIImage(data: data!)
-                    cell.removeBlurView()
-            }
-            }
-        })
+        //Pull image from database if it's loaded before
+        if photo.image != nil {
+            let p = UIImage(data: photo.image! as Data)
+            cell.imageView.image = p
+        } else { //else download new image
+            let ai = ActivityIndicator()
+            ai.showLoader(cell.imageView)
+            let _ = photo.downloadImage(imagePath: photo.url!, completionHandler: { (data, errorString) in
+                if errorString == nil {
+                    photo.image = data! as NSData
+                    self.delegate.stack.save()
+                    DispatchQueue.main.async {
+                        cell.imageView.image = UIImage(data: data!)
+                    }
+                }
+            })
+            ai.removeLoader()
+            cell.removeBlurView()
+        }
         return cell
     }
     

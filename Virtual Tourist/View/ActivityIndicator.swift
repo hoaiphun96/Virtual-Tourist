@@ -8,7 +8,7 @@
 
 import Foundation
 import UIKit
-class ActivityIndicator: NSObject {
+class ActivityIndicator {
 
     //static let sharedInstance = ActivityIndicator()
     private let activityIndicator = UIActivityIndicatorView()

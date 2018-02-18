@@ -160,11 +160,14 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
                     photo.image = data! as NSData
                     self.delegate.stack.save()
                     DispatchQueue.main.async {
+                        ai.removeLoader()
                         cell.imageView.image = UIImage(data: data!)
                     }
+                } else {
+                    ai.removeLoader()
                 }
             })
-            ai.removeLoader()
+            
             cell.removeBlurView()
         }
         return cell

@@ -69,9 +69,10 @@ public class FlickrPhotosDownloader  {
                             (UIApplication.shared.delegate as! AppDelegate).stack.save()
                         }
                         UserDefaults.standard.set(pages, forKey: "Number of pages for \(String(describing: self.pin?.objectID))")
+                        
                         UserDefaults.standard.synchronize()
                          guard pages != 0 else {
-                            completionHandlerForGetImage(false, "Out of bound")
+                            completionHandlerForGetImage(false, "Empty Album")
                             return
                         }
                         //save new photos downloaded to CoreData

@@ -43,12 +43,12 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
         configureToolBar(photoSelected: false)
         configureCollectionView()
         //Check if photos for this pin have been loaded before
+     
         guard UserDefaults.standard.bool(forKey: "\(pin.objectID)") else {
             //if never been loaded, load page 1, load new set of photos
-            loadPhotos(1)
+            loadPhotos()
             return
         }
-        
     }
     
     func executeSearch() {
@@ -62,10 +62,14 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
     }
     
     //MARK: HELPER METHODS TO LOAD and DELETE PHOTOS
-    func loadPhotos(_ atPage: Int) {
+    func loadPhotos() {
         let loadPhoto = FlickrPhotosDownloader()
         loadPhoto.pin = pin
         loadPhoto.fetchedResultsController = fetchedResultsController
+        let randomInt = arc4random_uniform(UInt32(UserDefaults.standard.integer(forKey: "Number of pages for \(String(describing: self.pin?.objectID))")))
+        print("Pages is: \(UserDefaults.standard.integer(forKey: "Number of pages for \(String(describing: self.pin?.objectID))"))")
+        let atPage = Int(1 + randomInt)
+        print("at page ", atPage)
         loadPhoto.getImageFromFlickr(pageNumber: atPage) { (foundImage, errorString) in
             UserDefaults.standard.set(true, forKey: "\(self.pin.objectID)")
             //If don't find any photo, display "No image found"
@@ -75,7 +79,8 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
                 return
             }
         }
-        delegate.stack.save()
+        self.delegate.stack.save()
+        
         
     }
     
@@ -95,11 +100,9 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
     @IBAction func toolBarButtonClicked(_ sender: Any) {
         if toolBarButton.title == "New Collection" {
             //next page = randome within the range of number of pages at that location
-            let randomInt = arc4random_uniform(UInt32(UserDefaults.standard.integer(forKey: "Number of pages for \(String(describing: self.pin?.objectID))")))
-            let randomPageNumber = Int(1 + randomInt)
             deletePhotos()
             selectedPhotos.removeAll()
-            loadPhotos(randomPageNumber)
+            loadPhotos()
         }
         else {
             //Delete photo
@@ -149,11 +152,13 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
         let photo = fetchedResultsController!.object(at: indexPath) as! Photo
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoCell", for: indexPath) as! PhotoViewCell
         //Pull image from database if it's loaded before
-        if photo.image != nil {
+
+        if photo.image != nil  {
             let p = UIImage(data: photo.image! as Data)
             cell.imageView.image = p
         } else { //else download new image
             let ai = ActivityIndicator()
+            cell.imageView.image = nil
             ai.showLoader(cell.imageView)
             let _ = photo.downloadImage(imagePath: photo.url!, completionHandler: { (data, errorString) in
                 if errorString == nil {
@@ -161,14 +166,16 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
                     self.delegate.stack.save()
                     DispatchQueue.main.async {
                         ai.removeLoader()
+                        cell.removeBlurView()
                         cell.imageView.image = UIImage(data: data!)
                     }
                 } else {
                     ai.removeLoader()
+                    cell.removeBlurView()
                 }
             })
             
-            cell.removeBlurView()
+            
         }
         return cell
     }

@@ -42,12 +42,9 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
         configureMapView()
         configureToolBar(photoSelected: false)
         configureCollectionView()
-        //Check if photos for this pin have been loaded before
-     
-        guard UserDefaults.standard.bool(forKey: "\(pin.objectID)") else {
-            //if never been loaded, load page 1, load new set of photos
+        //Check if this pin has any photo
+        if pin.photos?.count == 0 {
             loadPhotos()
-            return
         }
     }
     
@@ -66,12 +63,13 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
         let loadPhoto = FlickrPhotosDownloader()
         loadPhoto.pin = pin
         loadPhoto.fetchedResultsController = fetchedResultsController
-        let randomInt = arc4random_uniform(UInt32(UserDefaults.standard.integer(forKey: "Number of pages for \(String(describing: self.pin?.objectID))")))
-        print("Pages is: \(UserDefaults.standard.integer(forKey: "Number of pages for \(String(describing: self.pin?.objectID))"))")
-        let atPage = Int(1 + randomInt)
-        print("at page ", atPage)
-        loadPhoto.getImageFromFlickr(pageNumber: atPage) { (foundImage, errorString) in
-            UserDefaults.standard.set(true, forKey: "\(self.pin.objectID)")
+ 
+        let pages = UserDefaults.standard.integer(forKey: "Number of pages for \(String(describing: self.pin?.objectID))")
+        let perpage = Int(Constants.FlickrParameterValues.perpage)
+        let randomInt = arc4random_uniform(UInt32(min(pages,Int(400/perpage!))))
+        
+        loadPhoto.getImageFromFlickr(pageNumber: Int(randomInt) + 1) { (foundImage, errorString) in
+    
             //If don't find any photo, display "No image found"
             //if no image is found at all, then display "no image found",
             guard foundImage else {

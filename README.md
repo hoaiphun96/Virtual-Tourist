@@ -25,6 +25,7 @@ Virtual Tourist allows the user to
 - RESTful APIs
 - Data Persistence
 - Grand Central Dispatch
+- Core Data
 
  ## License
 This project is licensed under the MIT License
